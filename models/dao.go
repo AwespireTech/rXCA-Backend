@@ -20,3 +20,8 @@ type DAO struct {
 	GovernanceDocument string `json:"governance_doc" bson:"governanceDocument"`
 	State              int    `json:"state" bson:"state"`
 }
+type DAOFilter struct {
+	Address string `bson:"addr,omitempty"`
+	Name    string `bson:"name,omitempty"`
+	State   int    `bson:"state,omitempty"`
+}
