@@ -15,3 +15,22 @@ func GetDAOByAddress(address string) (*models.DAO, error) {
 	}
 	return dao, nil
 }
+
+func GetAllDAOs(fil models.DAOFilter) ([]models.DAO, int, error) {
+	// Filter not supported yet
+	db := GetClient().Database("dXCA").Collection("DAO")
+	var daos []models.DAO
+	cnt, err := db.CountDocuments(context.Background(), fil)
+	if err != nil {
+		return nil, 0, err
+	}
+	cur, err := db.Find(context.Background(), fil)
+	if err != nil {
+		return nil, 0, err
+	}
+	err = cur.All(context.Background(), &daos)
+	if err != nil {
+		return nil, 0, err
+	}
+	return daos, int(cnt), nil
+}

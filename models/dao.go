@@ -25,3 +25,7 @@ type DAOFilter struct {
 	Name    string `bson:"name,omitempty"`
 	State   int    `bson:"state,omitempty"`
 }
+type DAOsResponse struct {
+	DAOs []DAO `json:"daos"`
+	Count int `json:"count"`
+}

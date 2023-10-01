@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/AwespireTech/dXCA-Backend/database"
+	"github.com/AwespireTech/dXCA-Backend/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -23,5 +24,8 @@ func createRouter() *gin.Engine {
 			"message": "Welcome to dXCA API",
 		})
 	})
+	api := router.Group("/api")
+	routes.SetDAORoutes(api)
+
 	return router
 }
