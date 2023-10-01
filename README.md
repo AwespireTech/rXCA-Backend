@@ -8,7 +8,7 @@ docker-compose up -d
 
 And the following to stop the server:
 ```bash
-docker-compose down
+docker-compose down -v
 ```
 
 
