@@ -3,15 +3,21 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 
+	"github.com/AwespireTech/dXCA-Backend/database"
 	"github.com/gin-gonic/gin"
 )
 
 func TestMain(m *testing.M) {
+	err := database.Init("mongodb://localhost:27017")
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
 	gin.SetMode(gin.TestMode)
 	m.Run()
 }

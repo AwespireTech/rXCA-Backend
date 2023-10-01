@@ -1,10 +1,17 @@
 package main
 
 import (
+	"os"
+
+	"github.com/AwespireTech/dXCA-Backend/database"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load()
+	database_url := os.Getenv("DATABASE_URL")
+	database.Init(database_url)
 	router := createRouter()
 	router.Run(":8080")
 }
