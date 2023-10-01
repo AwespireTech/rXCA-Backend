@@ -7,7 +7,7 @@ require (
 	go.mongodb.org/mongo-driver v1.12.1
 )
 
-require github.com/gin-contrib/cors v1.4.0 // indirect
+require github.com/gin-contrib/cors v1.4.0
 
 require (
 	github.com/bytedance/sonic v1.10.1 // indirect
