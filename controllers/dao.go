@@ -42,3 +42,119 @@ func GetAllDAOs(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, resp)
 }
+func CancelDAO(c *gin.Context) {
+	address := c.Param("address")
+	dao, err := database.GetDAOByAddress(address)
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "DAO not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	if dao.State != models.DAO_STATE_PENDING {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "DAO is not pending",
+		})
+		return
+	}
+	err = database.DeleteDAOByAddress(address)
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "DAO not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "DAO successfully deleted",
+	})
+}
+func CreateDAO(c *gin.Context) {
+	dao := models.DAO{}
+	err := c.ShouldBindJSON(&dao)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	err = database.InsertDAO(dao)
+	if err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			c.JSON(http.StatusConflict, gin.H{
+				"error": "DAO already exists",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusCreated, dao)
+}
+func ValidateDAOByAddr(c *gin.Context) {
+	address := c.Param("address")
+	val := models.DAOVerifyRequest{}
+	err := c.ShouldBindJSON(&val)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	if val.Validate {
+		dao := models.DAO{
+			State: models.DAO_STATE_APPROVED,
+		}
+		err = database.UpdateDAOByAddress(address, dao)
+		if err != nil {
+			if err.Error() == mongo.ErrNoDocuments.Error() {
+				c.JSON(http.StatusNotFound, gin.H{
+					"error": "DAO not found",
+				})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "DAO successfully validated",
+		})
+		return
+	} else {
+		dao := models.DAO{
+			State: models.DAO_STATE_DENIED,
+		}
+		err = database.UpdateDAOByAddress(address, dao)
+		if err != nil {
+			if err.Error() == mongo.ErrNoDocuments.Error() {
+				c.JSON(http.StatusNotFound, gin.H{
+					"error": "DAO not found",
+				})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "DAO successfully denied",
+		})
+		return
+	}
+}
