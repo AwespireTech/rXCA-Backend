@@ -14,10 +14,10 @@ func main() {
 	godotenv.Load()
 	database_url := os.Getenv("DATABASE_URL")
 	database.Init(database_url)
-	
+
 	router := createRouter()
-	
-	router.Run(":8080")
+
+	router.Run()
 }
 
 func createRouter() *gin.Engine {
