@@ -12,7 +12,7 @@ var client *mongo.Client
 
 func Init(url string) error {
 	serverApi := options.ServerAPI(options.ServerAPIVersion1)
-	clientOptions := options.Client().ApplyURI(url).SetServerAPIOptions(serverApi).SetConnectTimeout(10)
+	clientOptions := options.Client().ApplyURI(url).SetServerAPIOptions(serverApi)
 	database, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
 		return err
