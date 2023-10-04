@@ -11,7 +11,7 @@ type DAO struct {
 	Contract           string `json:"contract" bson:"contract,omitempty"`
 	Name               string `json:"name" bson:"name,omitempty"`
 	Description        string `json:"description" bson:"description,omitempty"`
-	Framwork           string `json:"framwork" bson:"framwork,omitempty"`
+	Framework          string `json:"framework" bson:"framwork,omitempty"`
 	MembersUri         string `json:"members_uri" bson:"membersUri,omitempty"`
 	ProposalsUri       string `json:"proposals_uri" bson:"proposalsUri,omitempty"`
 	IssuersUri         string `json:"issuers_uri" bson:"issuersUri,omitempty"`

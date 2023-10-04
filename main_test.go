@@ -165,7 +165,7 @@ func RandomDAO(t *testing.T) models.DAO {
 	dao.Contract = RandomAddress(t)
 	dao.Name = "Test DAO"
 	dao.Description = "Test DAO Description"
-	dao.Framwork = "Test DAO Framework"
+	dao.Framework = "Test DAO Framework"
 	dao.MembersUri = "Test DAO Members URI"
 	dao.ProposalsUri = "Test DAO Proposals URI"
 	dao.IssuersUri = "Test DAO Issuers URI"
