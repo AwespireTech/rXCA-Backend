@@ -5,7 +5,8 @@ import (
 
 	"github.com/AwespireTech/dXCA-Backend/database"
 	"github.com/AwespireTech/dXCA-Backend/routes"
-	"github.com/gin-contrib/cors"
+	"github.com/AwespireTech/dXCA-Backend/utils"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -14,17 +15,13 @@ func main() {
 	godotenv.Load()
 	database_url := os.Getenv("DATABASE_URL")
 	database.Init(database_url)
-
 	router := createRouter()
-
 	router.Run()
 }
 
 func createRouter() *gin.Engine {
 	router := gin.Default()
-	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-
+	router.Use(utils.CORSMiddleware())
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "Welcome to dXCA API",

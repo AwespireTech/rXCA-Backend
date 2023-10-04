@@ -42,6 +42,10 @@ func TestDefaultRoute(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Errorf("expected status code %d, got %d", http.StatusOK, recorder.Code)
 	}
+	//Check if cors is enabled
+	if recorder.Header().Get("Access-Control-Allow-Origin") != "*" {
+		t.Errorf("cors is not enabled, expected %s, got %s", "*", recorder.Header().Get("Access-Control-Allow-Origin"))
+	}
 
 }
 func TestGetAllDAOs(t *testing.T) {
