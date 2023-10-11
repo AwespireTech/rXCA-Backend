@@ -1,20 +1,20 @@
 package main
 
 import (
-	"os"
-
+	"github.com/AwespireTech/dXCA-Backend/blockchain"
+	"github.com/AwespireTech/dXCA-Backend/config"
 	"github.com/AwespireTech/dXCA-Backend/database"
 	"github.com/AwespireTech/dXCA-Backend/routes"
 	"github.com/AwespireTech/dXCA-Backend/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	godotenv.Load()
-	database_url := os.Getenv("DATABASE_URL")
-	database.Init(database_url)
+
+	database.Init(config.DATABASE_URL)
+	blockchain.Init(config.ETH_RPC_URL)
+
 	router := createRouter()
 	router.Run()
 }
