@@ -19,6 +19,8 @@ type DAO struct {
 	ManagerAddress     string `json:"managerAddress" bson:"managerAddress,omitempty"`
 	GovernanceDocument string `json:"governanceDocument" bson:"governanceDocument,omitempty"`
 	State              int    `json:"state" bson:"state,omitempty"`
+	TokenId            int    `json:"tokenId" bson:"tokenId,omitempty"`
+	Creator            string `json:"creator" bson:"creator,omitempty"`
 }
 type DAOFilter struct {
 	Address string `bson:"addr,omitempty"`
@@ -32,4 +34,3 @@ type DAOsResponse struct {
 type DAOVerifyRequest struct {
 	Validate bool `json:"validate"`
 }
- 
