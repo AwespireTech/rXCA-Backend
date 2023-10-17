@@ -9,6 +9,7 @@ import (
 var (
 	DATABASE_URL string
 	ETH_RPC_URL  string
+	CONTRACT_ADDRESS string
 )
 
 func init() {
