@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"net/http"
+	"strings"
 
+	"github.com/AwespireTech/dXCA-Backend/blockchain"
 	"github.com/AwespireTech/dXCA-Backend/database"
 	"github.com/AwespireTech/dXCA-Backend/models"
 	"github.com/gin-gonic/gin"
@@ -89,6 +91,8 @@ func CreateDAO(c *gin.Context) {
 		})
 		return
 	}
+	dao.Address = strings.ToLower(dao.Address)
+
 	err = database.InsertDAO(dao)
 	if err != nil {
 		if mongo.IsDuplicateKeyError(err) {
@@ -115,8 +119,23 @@ func ValidateDAOByAddr(c *gin.Context) {
 		return
 	}
 	if val.Validate {
+		addr, tid, err := blockchain.DecodeMintTransaction(val.TxHash)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		if addr != address {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Transaction is not minting to the correct address",
+			})
+			return
+		}
+
 		dao := models.DAO{
-			State: models.DAO_STATE_APPROVED,
+			State:   models.DAO_STATE_APPROVED,
+			TokenId: tid,
 		}
 		err = database.UpdateDAOByAddress(address, dao)
 		if err != nil {
@@ -137,7 +156,8 @@ func ValidateDAOByAddr(c *gin.Context) {
 		return
 	} else {
 		dao := models.DAO{
-			State: models.DAO_STATE_DENIED,
+			State:   models.DAO_STATE_DENIED,
+			TokenId: -1,
 		}
 		err = database.UpdateDAOByAddress(address, dao)
 		if err != nil {
@@ -157,4 +177,63 @@ func ValidateDAOByAddr(c *gin.Context) {
 		})
 		return
 	}
+}
+func RevokeDAOByAddr(c *gin.Context) {
+	address := c.Param("address")
+	oriDAO, err := database.GetDAOByAddress(address)
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "DAO not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	val := models.DAORevokeRequest{}
+	err = c.ShouldBindJSON(&val)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	addr, tid, err := blockchain.DecodeBurnTransaction(val.TxHash)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	if addr != address || tid != oriDAO.TokenId {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Transaction is not buring of correct address",
+		})
+		return
+	}
+	update := models.DAO{
+		State:   models.DAO_STATE_DENIED,
+		TokenId: -1,
+	}
+	err = database.UpdateDAOByAddress(address, update)
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "DAO not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "DAO successfully revoked",
+	})
+	return
+
 }

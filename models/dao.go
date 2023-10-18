@@ -32,5 +32,9 @@ type DAOsResponse struct {
 	Count int   `json:"count"`
 }
 type DAOVerifyRequest struct {
-	Validate bool `json:"validate"`
+	Validate bool   `json:"validate"`
+	TxHash   string `json:"opHash"`
+}
+type DAORevokeRequest struct {
+	TxHash string `json:"opHash" binding:"required"`
 }

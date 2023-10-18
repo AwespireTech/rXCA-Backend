@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/AwespireTech/dXCA-Backend/blockchain"
 	"github.com/AwespireTech/dXCA-Backend/database"
 	"github.com/AwespireTech/dXCA-Backend/models"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -25,6 +26,10 @@ func TestMain(m *testing.M) {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 	gin.SetMode(gin.TestMode)
+	err = blockchain.Init("https://eth-sepolia.g.alchemy.com/v2/s65QiLyN-74IJZtUJgtWJiZ9gGzUfxOm")
+	if err != nil {
+		log.Fatalf("failed to connect to eth: %v", err)
+	}
 	m.Run()
 }
 func getRouter(t *testing.T) *gin.Engine {
@@ -142,9 +147,24 @@ func TestValidateDAO(t *testing.T) {
 	}
 	router := getRouter(t)
 	router.ServeHTTP(recorder, request)
+	// No hash, failed approval
+	if recorder.Code != http.StatusBadRequest {
+		t.Errorf("expected status code %d, got %d", http.StatusBadRequest, recorder.Code)
+	}
+	t.Log("No hash, failed approval")
+	t.Log(recorder.Body)
+	// No hash, success denial
+	body = []byte(`{"validate":false}`)
+	recorder = httptest.NewRecorder()
+	request, err = http.NewRequest("POST", url, bytes.NewBuffer(body))
+	if err != nil {
+		t.Fatalf("failed to create mock request: %v", err)
+	}
+	router.ServeHTTP(recorder, request)
 	if recorder.Code != http.StatusOK {
 		t.Errorf("expected status code %d, got %d", http.StatusOK, recorder.Code)
 	}
+	t.Log("No hash, success denial")
 	t.Log(recorder.Body)
 
 }
