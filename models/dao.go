@@ -8,7 +8,7 @@ const (
 
 type DAO struct {
 	ID                 int    `json:"id" bson:"displayId,omitempty"`
-	Address            string `json:"address" bson:"addr"`
+	Address            string `json:"address" bson:"addr,omitempty"`
 	Contract           string `json:"network" bson:"contract,omitempty"`
 	Name               string `json:"name" bson:"name,omitempty"`
 	Description        string `json:"description" bson:"description,omitempty"`
@@ -24,9 +24,13 @@ type DAO struct {
 	Creator            string `json:"creator" bson:"creator,omitempty"`
 }
 type DAOFilter struct {
-	Address string `bson:"addr,omitempty"`
-	Name    string `bson:"name,omitempty"`
-	State   int    `bson:"state,omitempty"`
+	Address string         `bson:"addr,omitempty"`
+	Name    interface{}    `bson:"name,omitempty"`
+	State   DAOStateFilter `bson:"state,omitempty"`
+	Creator string         `bson:"creator,omitempty"`
+}
+type DAOStateFilter struct {
+	Selected []int `json:"selected" bson:"$in,omitempty"`
 }
 type DAOsResponse struct {
 	DAOs  []DAO `json:"daos"`
@@ -41,4 +45,11 @@ type DAORevokeRequest struct {
 }
 type DAOid struct {
 	ID int `json:"id" bson:"id,omitempty"`
+}
+type DAOExploreParams struct {
+	Search  string `param:"search"`
+	State   int    `param:"state"`
+	Limit   int    `param:"limit"`
+	Offset  int    `param:"offset"`
+	Creator string `param:"creator"`
 }

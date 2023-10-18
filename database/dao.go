@@ -7,6 +7,7 @@ import (
 	"github.com/AwespireTech/dXCA-Backend/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func InsertDAO(dao models.DAO) error {
@@ -29,7 +30,9 @@ func InsertDAO(dao models.DAO) error {
 func GetDAOByAddress(address string) (models.DAO, error) {
 	db := GetClient().Database("dXCA").Collection("DAO")
 	dao := models.DAO{}
-	err := db.FindOne(context.TODO(), models.DAOFilter{Address: address}).Decode(&dao)
+	err := db.FindOne(context.TODO(), bson.M{
+		"addr": address,
+	}).Decode(&dao)
 	if err != nil {
 		return dao, err
 	}
@@ -37,10 +40,12 @@ func GetDAOByAddress(address string) (models.DAO, error) {
 }
 func DeleteDAOByAddress(address string) error {
 	db := GetClient().Database("dXCA").Collection("DAO")
-	_, err := db.DeleteOne(context.Background(), models.DAOFilter{Address: address})
+	_, err := db.DeleteOne(context.Background(), bson.M{
+		"addr": address,
+	})
 	return err
 }
-func GetAllDAOs(fil models.DAOFilter) ([]models.DAO, int, error) {
+func GetAllDAOs(fil models.DAOFilter, opt *options.FindOptions) ([]models.DAO, int, error) {
 	// Filter not supported yet
 	db := GetClient().Database("dXCA").Collection("DAO")
 	var daos []models.DAO
@@ -48,7 +53,7 @@ func GetAllDAOs(fil models.DAOFilter) ([]models.DAO, int, error) {
 	if err != nil {
 		return nil, 0, err
 	}
-	cur, err := db.Find(context.Background(), fil)
+	cur, err := db.Find(context.Background(), fil, opt)
 	if err != nil {
 		return nil, 0, err
 	}

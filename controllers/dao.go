@@ -2,17 +2,20 @@ package controllers
 
 import (
 	"net/http"
+	"regexp"
 
 	"github.com/AwespireTech/dXCA-Backend/blockchain"
 	"github.com/AwespireTech/dXCA-Backend/database"
 	"github.com/AwespireTech/dXCA-Backend/models"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func GetDAOByAddr(c *gin.Context) {
 	address := blockchain.ParseAddress(c.Param("address"))
-
 	dao, err := database.GetDAOByAddress(address)
 	if err != nil {
 		if err.Error() == mongo.ErrNoDocuments.Error() {
@@ -30,8 +33,44 @@ func GetDAOByAddr(c *gin.Context) {
 }
 
 func GetAllDAOs(c *gin.Context) {
+	var params models.DAOExploreParams
+	err := c.ShouldBindQuery(&params)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	fil := models.DAOFilter{}
-	daos, cnt, err := database.GetAllDAOs(fil)
+	opt := options.Find()
+	if params.Limit != 0 {
+		opt.SetLimit(int64(params.Limit))
+	}
+	if params.Offset != 0 {
+		opt.SetSkip(int64(params.Offset))
+	}
+	if c.Param("state") != "" {
+		fil.State = models.DAOStateFilter{
+			Selected: []int{params.State},
+		}
+	} else {
+		fil.State = models.DAOStateFilter{
+			Selected: []int{models.DAO_STATE_APPROVED, models.DAO_STATE_PENDING, models.DAO_STATE_DENIED},
+		}
+	}
+	if params.Search != "" {
+		fil.Name = bson.D{
+			{
+				Key: "$regex",
+				Value: primitive.Regex{
+					Pattern: regexp.QuoteMeta(params.Search),
+					Options: "i",
+				},
+			},
+		}
+	}
+	fil.Creator = params.Creator
+	daos, cnt, err := database.GetAllDAOs(fil, opt)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": err.Error(),

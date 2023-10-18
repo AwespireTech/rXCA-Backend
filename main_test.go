@@ -124,7 +124,7 @@ func TestCancelDAO(t *testing.T) {
 		t.Errorf("expected status code %d, got %d", http.StatusOK, recorder.Code)
 	}
 	_, err = database.GetDAOByAddress(address)
-	if err.Error() != mongo.ErrNoDocuments.Error() {
+	if err == nil || err.Error() != mongo.ErrNoDocuments.Error() {
 		t.Errorf("DAO not deleted")
 	}
 	t.Log(recorder.Body)
@@ -218,5 +218,6 @@ func RandomAddress(t *testing.T) string {
 	t.Helper()
 	addr := "0x"
 	addr += hex.EncodeToString([]byte{byte(rand.Intn(2147483647))})
+	addr = blockchain.ParseAddress(addr)
 	return addr
 }
