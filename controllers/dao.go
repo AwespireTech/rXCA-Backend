@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/AwespireTech/dXCA-Backend/blockchain"
 	"github.com/AwespireTech/dXCA-Backend/database"
@@ -12,7 +11,8 @@ import (
 )
 
 func GetDAOByAddr(c *gin.Context) {
-	address := strings.ToLower(c.Param("address"))
+	address := blockchain.ParseAddress(c.Param("address"))
+
 	dao, err := database.GetDAOByAddress(address)
 	if err != nil {
 		if err.Error() == mongo.ErrNoDocuments.Error() {
@@ -45,7 +45,7 @@ func GetAllDAOs(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 func CancelDAO(c *gin.Context) {
-	address := strings.ToLower(c.Param("address"))
+	address := blockchain.ParseAddress(c.Param("address"))
 	dao, err := database.GetDAOByAddress(address)
 	if err != nil {
 		if err.Error() == mongo.ErrNoDocuments.Error() {
@@ -91,7 +91,7 @@ func CreateDAO(c *gin.Context) {
 		})
 		return
 	}
-	dao.Address = strings.ToLower(dao.Address)
+	dao.Address = blockchain.ParseAddress(dao.Address)
 
 	err = database.InsertDAO(dao)
 	if err != nil {
@@ -109,9 +109,30 @@ func CreateDAO(c *gin.Context) {
 	c.JSON(http.StatusCreated, dao)
 }
 func ValidateDAOByAddr(c *gin.Context) {
-	address := strings.ToLower(c.Param("address"))
+	//Check if DAO is pending
+	originDao, err := database.GetDAOByAddress(blockchain.ParseAddress(c.Param("address")))
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "DAO not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	if originDao.State != models.DAO_STATE_PENDING {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "DAO is not pending",
+		})
+		return
+	}
+
+	address := blockchain.ParseAddress(c.Param("address"))
 	val := models.DAOVerifyRequest{}
-	err := c.ShouldBindJSON(&val)
+	err = c.ShouldBindJSON(&val)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -179,7 +200,8 @@ func ValidateDAOByAddr(c *gin.Context) {
 	}
 }
 func RevokeDAOByAddr(c *gin.Context) {
-	address := strings.ToLower(c.Param("address"))
+	address := blockchain.ParseAddress(c.Param("address"))
+
 	oriDAO, err := database.GetDAOByAddress(address)
 	if err != nil {
 		if err.Error() == mongo.ErrNoDocuments.Error() {
@@ -234,6 +256,5 @@ func RevokeDAOByAddr(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "DAO successfully revoked",
 	})
-	return
 
 }

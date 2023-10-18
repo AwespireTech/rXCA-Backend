@@ -12,8 +12,15 @@ import (
 
 func main() {
 
-	database.Init(config.DATABASE_URL)
-	blockchain.Init(config.ETH_RPC_URL)
+	config.PrintConfig()
+	err := database.Init(config.DATABASE_URL)
+	if err != nil {
+		panic(err)
+	}
+	err = blockchain.Init(config.ETH_RPC_URL)
+	if err != nil {
+		panic(err)
+	}
 
 	router := createRouter()
 	router.Run()

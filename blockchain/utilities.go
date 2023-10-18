@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/AwespireTech/dXCA-Backend/config"
 	"github.com/ethereum/go-ethereum/common"
@@ -40,8 +39,8 @@ func DecodeMintTransaction(txhash string) (string, int, error) {
 	if tx.To() == nil {
 		return "", 0, errors.New("transaction is not a contract call")
 	}
-	if tx.To().Hex() != strings.ToLower(config.CONTRACT_ADDRESS) {
-		return "", 0, errors.New("transaction is not calling correct contract")
+	if tx.To().Hex() != config.CONTRACT_ADDRESS {
+		return "", 0, errors.New("transaction is not calling correct contract, expected: " + config.CONTRACT_ADDRESS + ", got: " + tx.To().Hex())
 	}
 	recp, err := ethClient.TransactionReceipt(context.Background(), common.HexToHash(txhash))
 	if err != nil {
@@ -69,8 +68,8 @@ func DecodeBurnTransaction(txhash string) (string, int, error) {
 	if tx.To() == nil {
 		return "", 0, errors.New("transaction is not a contract call")
 	}
-	if tx.To().Hex() != strings.ToLower(config.CONTRACT_ADDRESS) {
-		return "", 0, errors.New("transaction is not calling correct contract")
+	if tx.To().Hex() != config.CONTRACT_ADDRESS {
+		return "", 0, errors.New("transaction is not calling correct contract, expected: " + config.CONTRACT_ADDRESS + ", got: " + tx.To().Hex())
 	}
 	recp, err := ethClient.TransactionReceipt(context.Background(), common.HexToHash(txhash))
 	if err != nil {
@@ -96,5 +95,9 @@ func IsAdmin(address string) (bool, error) {
 		return false, err
 	}
 	return sbtContract.HasRole(nil, role, addr)
+
+}
+func ParseAddress(addr string) string {
+	return common.HexToAddress(addr).Hex()
 
 }
