@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"regexp"
 
@@ -41,6 +42,7 @@ func GetAllDAOs(c *gin.Context) {
 		})
 		return
 	}
+
 	fil := models.DAOFilter{}
 	opt := options.Find()
 	if params.Limit != 0 {
@@ -70,6 +72,9 @@ func GetAllDAOs(c *gin.Context) {
 		}
 	}
 	fil.Creator = params.Creator
+
+	//Print filter
+	fmt.Println(fil)
 	daos, cnt, err := database.GetAllDAOs(fil, opt)
 	if err != nil {
 		c.JSON(500, gin.H{
@@ -194,6 +199,7 @@ func ValidateDAOByAddr(c *gin.Context) {
 		}
 
 		dao := models.DAO{
+			Address: address,
 			State:   models.DAO_STATE_APPROVED,
 			TokenId: tid,
 		}
@@ -216,6 +222,7 @@ func ValidateDAOByAddr(c *gin.Context) {
 		return
 	} else {
 		dao := models.DAO{
+			Address: address,
 			State:   models.DAO_STATE_DENIED,
 			TokenId: -1,
 		}
@@ -276,6 +283,7 @@ func RevokeDAOByAddr(c *gin.Context) {
 		return
 	}
 	update := models.DAO{
+		Address: address,
 		State:   models.DAO_STATE_DENIED,
 		TokenId: -1,
 	}

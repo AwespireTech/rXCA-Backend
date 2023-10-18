@@ -47,9 +47,9 @@ type DAOid struct {
 	ID int `json:"id" bson:"id,omitempty"`
 }
 type DAOExploreParams struct {
-	Search  string `param:"search"`
-	State   int    `param:"state"`
-	Limit   int    `param:"limit"`
-	Offset  int    `param:"offset"`
-	Creator string `param:"creator"`
+	Search  string `form:"search"`
+	State   int    `form:"state"`
+	Limit   int    `form:"limit"`
+	Offset  int    `form:"offset"`
+	Creator string `form:"creator"`
 }

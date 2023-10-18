@@ -46,7 +46,6 @@ func DeleteDAOByAddress(address string) error {
 	return err
 }
 func GetAllDAOs(fil models.DAOFilter, opt *options.FindOptions) ([]models.DAO, int, error) {
-	// Filter not supported yet
 	db := GetClient().Database("dXCA").Collection("DAO")
 	var daos []models.DAO
 	cnt, err := db.CountDocuments(context.Background(), fil)
@@ -68,7 +67,9 @@ func UpdateDAOByAddress(address string, dao models.DAO) error {
 	update := bson.M{
 		"$set": dao,
 	}
-	_, err := db.UpdateOne(context.Background(), models.DAOFilter{Address: address}, update)
+	_, err := db.UpdateOne(context.Background(), bson.M{
+		"addr": address,
+	}, update)
 	return err
 }
 
