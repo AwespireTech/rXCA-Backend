@@ -7,6 +7,7 @@ const (
 )
 
 type DAO struct {
+	ID                 int    `json:"id" bson:"displayId,omitempty"`
 	Address            string `json:"address" bson:"addr"`
 	Contract           string `json:"network" bson:"contract,omitempty"`
 	Name               string `json:"name" bson:"name,omitempty"`
@@ -37,4 +38,7 @@ type DAOVerifyRequest struct {
 }
 type DAORevokeRequest struct {
 	TxHash string `json:"opHash" binding:"required"`
+}
+type DAOid struct {
+	ID int `json:"id" bson:"id,omitempty"`
 }

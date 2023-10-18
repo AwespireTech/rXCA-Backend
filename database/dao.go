@@ -2,14 +2,28 @@ package database
 
 import (
 	"context"
+	"errors"
 
 	"github.com/AwespireTech/dXCA-Backend/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func InsertDAO(dao models.DAO) error {
 	db := GetClient().Database("dXCA").Collection("DAO")
-	_, err := db.InsertOne(context.Background(), dao)
+	//Check dup address
+	cnt, err := db.CountDocuments(context.Background(), models.DAOFilter{Address: dao.Address})
+	if err != nil {
+		return err
+	}
+	if cnt != 0 {
+		return errors.New("DAO already exists")
+	}
+	dao.ID, err = AutoIncreamentID()
+	if err != nil {
+		return err
+	}
+	_, err = db.InsertOne(context.Background(), dao)
 	return err
 }
 func GetDAOByAddress(address string) (models.DAO, error) {
@@ -53,3 +67,29 @@ func UpdateDAOByAddress(address string, dao models.DAO) error {
 	return err
 }
 
+func AutoIncreamentID() (int, error) {
+	db := GetClient().Database("dXCA").Collection("DAOid")
+	id := models.DAOid{}
+	err := db.FindOne(context.Background(), bson.M{}).Decode(&id)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			id.ID = 2
+			_, err = db.InsertOne(context.Background(), id)
+			if err != nil {
+				return -1, err
+			}
+			return 1, nil
+		}
+		return -1, err
+	}
+	res := id.ID
+	update := bson.M{
+		"$inc": bson.M{"id": 1},
+	}
+	_, err = db.UpdateOne(context.Background(), bson.M{}, update)
+	if err != nil {
+		return -1, err
+	}
+	return res, nil
+
+}
