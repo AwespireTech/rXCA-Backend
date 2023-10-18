@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"strconv"
 
 	"github.com/AwespireTech/dXCA-Backend/blockchain"
 	"github.com/AwespireTech/dXCA-Backend/database"
@@ -52,10 +51,9 @@ func GetAllDAOs(c *gin.Context) {
 	if params.Offset != 0 {
 		opt.SetSkip(int64(params.Offset))
 	}
-	if c.Param("state") == "" {
+	if c.Query("state") == "" {
 		fil.State = nil
 	} else {
-		params.State, _ = strconv.Atoi(c.Param("state"))
 		fil.State = params.State
 	}
 	if params.Search != "" {

@@ -54,10 +54,12 @@ func GetAllDAOs(fil models.DAOFilter, opt *options.FindOptions) ([]models.DAO, i
 	if err != nil {
 		return nil, 0, err
 	}
+
 	cur, err := db.Find(context.Background(), fil, opt)
 	if err != nil {
 		return nil, 0, err
 	}
+
 	err = cur.All(context.Background(), &daos)
 	if err != nil {
 		return nil, 0, err

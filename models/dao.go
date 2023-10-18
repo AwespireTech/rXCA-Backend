@@ -19,7 +19,7 @@ type DAO struct {
 	ContractsRegUri    string `json:"contractsRegUri" bson:"contractsRegUri,omitempty"`
 	ManagerAddress     string `json:"managerAddress" bson:"managerAddress,omitempty"`
 	GovernanceDocument string `json:"governanceDocument" bson:"governanceDocument,omitempty"`
-	State              int    `json:"state" bson:"state,omitempty"`
+	State              int    `json:"state" bson:"state"`
 	TokenId            int    `json:"tokenId" bson:"tokenId,omitempty"`
 	Creator            string `json:"creator" bson:"creator,omitempty"`
 }
