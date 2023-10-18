@@ -6,6 +6,8 @@ services:
     environment:
       - DATABASE_HOST=mongo:27017
       - PORT=8080
+      - ETH_RPC_URL=https://rpc.sepolia.org
+      - CONTRACT_ADDRESS=0xcdF367bb783bC7C3681df313364fdf9b1E82A7aD
   mongo:
     image: mongo:latest
 
