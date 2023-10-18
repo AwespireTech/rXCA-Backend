@@ -51,9 +51,39 @@ func DecodeMintTransaction(txhash string) (string, int, error) {
 			return parseLog.To.Hex(), int(parseLog.TokenId.Uint64()), nil
 		}
 	}
-
 	return "", 0, errors.New("transaction is not a mint transaction")
 }
+func DecodeBurnTransaction(txhash string) (string, int, error) {
+	tx, pending, err := ethClient.TransactionByHash(context.Background(), common.HexToHash(txhash))
+	if err != nil {
+		return "", 0, err
+	}
+	if pending {
+		return "", 0, errors.New("transaction is pending")
+	}
+	if tx.To() == nil {
+		return "", 0, errors.New("transaction is not a contract call")
+	}
+	if tx.To().Hex() != config.CONTRACT_ADDRESS {
+		return "", 0, errors.New("transaction is not calling correct contract")
+	}
+	recp, err := ethClient.TransactionReceipt(context.Background(), common.HexToHash(txhash))
+	if err != nil {
+		return "", 0, err
+	}
+	for _, log := range recp.Logs {
+		parseLog, err := sbtContract.ParseTransfer(*log)
+		if err == nil {
+			if parseLog.To.Hex() == "0x0000000000000000000000000000000000000000" {
+				return parseLog.From.Hex(), int(parseLog.TokenId.Uint64()), nil
+			} else {
+				return "", 0, errors.New("transaction is not a burn transaction")
+			}
+		}
+	}
+	return "", 0, errors.New("transaction is not a burn transaction")
+}
+
 func IsAdmin(address string) (bool, error) {
 	addr := common.HexToAddress(address)
 	role, err := sbtContract.MINTERROLE(nil)

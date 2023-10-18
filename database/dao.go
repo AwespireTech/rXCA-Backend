@@ -52,3 +52,4 @@ func UpdateDAOByAddress(address string, dao models.DAO) error {
 	_, err := db.UpdateOne(context.Background(), models.DAOFilter{Address: address}, update)
 	return err
 }
+

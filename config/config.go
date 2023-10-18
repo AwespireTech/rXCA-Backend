@@ -21,4 +21,5 @@ func init() {
 	}
 	DATABASE_URL = "mongodb://" + databaseCred + os.Getenv("DATABASE_HOST")
 	ETH_RPC_URL = os.Getenv("ETH_RPC_URL")
+	CONTRACT_ADDRESS = os.Getenv("CONTRACT_ADDRESS")
 }
