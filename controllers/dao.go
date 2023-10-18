@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 
 	"github.com/AwespireTech/dXCA-Backend/blockchain"
 	"github.com/AwespireTech/dXCA-Backend/database"
@@ -51,14 +52,11 @@ func GetAllDAOs(c *gin.Context) {
 	if params.Offset != 0 {
 		opt.SetSkip(int64(params.Offset))
 	}
-	if c.Param("state") != "" {
-		fil.State = models.DAOStateFilter{
-			Selected: []int{params.State},
-		}
+	if c.Param("state") == "" {
+		fil.State = nil
 	} else {
-		fil.State = models.DAOStateFilter{
-			Selected: []int{models.DAO_STATE_APPROVED, models.DAO_STATE_PENDING, models.DAO_STATE_DENIED},
-		}
+		params.State, _ = strconv.Atoi(c.Param("state"))
+		fil.State = params.State
 	}
 	if params.Search != "" {
 		fil.Name = bson.D{
@@ -70,6 +68,8 @@ func GetAllDAOs(c *gin.Context) {
 				},
 			},
 		}
+	} else {
+		fil.Name = nil
 	}
 	fil.Creator = params.Creator
 

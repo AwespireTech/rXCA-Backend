@@ -24,14 +24,11 @@ type DAO struct {
 	Creator            string `json:"creator" bson:"creator,omitempty"`
 }
 type DAOFilter struct {
-	Address string         `bson:"addr,omitempty"`
-	Name    interface{}    `bson:"name,omitempty"`
-	State   DAOStateFilter `bson:"state,omitempty"`
-	Creator string         `bson:"creator,omitempty"`
+	Name    interface{} `bson:"name,omitempty"`
+	State   interface{} `bson:"state,omitempty"`
+	Creator string      `bson:"creator,omitempty"`
 }
-type DAOStateFilter struct {
-	Selected []int `json:"selected" bson:"$in,omitempty"`
-}
+
 type DAOsResponse struct {
 	DAOs  []DAO `json:"daos"`
 	Count int   `json:"count"`
