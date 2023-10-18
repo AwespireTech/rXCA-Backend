@@ -12,7 +12,7 @@ import (
 )
 
 func GetDAOByAddr(c *gin.Context) {
-	address := c.Param("address")
+	address := strings.ToLower(c.Param("address"))
 	dao, err := database.GetDAOByAddress(address)
 	if err != nil {
 		if err.Error() == mongo.ErrNoDocuments.Error() {
@@ -45,7 +45,7 @@ func GetAllDAOs(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 func CancelDAO(c *gin.Context) {
-	address := c.Param("address")
+	address := strings.ToLower(c.Param("address"))
 	dao, err := database.GetDAOByAddress(address)
 	if err != nil {
 		if err.Error() == mongo.ErrNoDocuments.Error() {
@@ -109,7 +109,7 @@ func CreateDAO(c *gin.Context) {
 	c.JSON(http.StatusCreated, dao)
 }
 func ValidateDAOByAddr(c *gin.Context) {
-	address := c.Param("address")
+	address := strings.ToLower(c.Param("address"))
 	val := models.DAOVerifyRequest{}
 	err := c.ShouldBindJSON(&val)
 	if err != nil {
@@ -179,7 +179,7 @@ func ValidateDAOByAddr(c *gin.Context) {
 	}
 }
 func RevokeDAOByAddr(c *gin.Context) {
-	address := c.Param("address")
+	address := strings.ToLower(c.Param("address"))
 	oriDAO, err := database.GetDAOByAddress(address)
 	if err != nil {
 		if err.Error() == mongo.ErrNoDocuments.Error() {

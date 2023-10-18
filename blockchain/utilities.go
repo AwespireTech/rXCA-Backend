@@ -3,6 +3,8 @@ package blockchain
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/AwespireTech/dXCA-Backend/config"
 	"github.com/ethereum/go-ethereum/common"
@@ -38,7 +40,7 @@ func DecodeMintTransaction(txhash string) (string, int, error) {
 	if tx.To() == nil {
 		return "", 0, errors.New("transaction is not a contract call")
 	}
-	if tx.To().Hex() != config.CONTRACT_ADDRESS {
+	if tx.To().Hex() != strings.ToLower(config.CONTRACT_ADDRESS) {
 		return "", 0, errors.New("transaction is not calling correct contract")
 	}
 	recp, err := ethClient.TransactionReceipt(context.Background(), common.HexToHash(txhash))
@@ -54,6 +56,9 @@ func DecodeMintTransaction(txhash string) (string, int, error) {
 	return "", 0, errors.New("transaction is not a mint transaction")
 }
 func DecodeBurnTransaction(txhash string) (string, int, error) {
+	fmt.Println("DecodeBurnTransaction")
+	fmt.Printf("txhash: %s", txhash)
+
 	tx, pending, err := ethClient.TransactionByHash(context.Background(), common.HexToHash(txhash))
 	if err != nil {
 		return "", 0, err
@@ -64,7 +69,7 @@ func DecodeBurnTransaction(txhash string) (string, int, error) {
 	if tx.To() == nil {
 		return "", 0, errors.New("transaction is not a contract call")
 	}
-	if tx.To().Hex() != config.CONTRACT_ADDRESS {
+	if tx.To().Hex() != strings.ToLower(config.CONTRACT_ADDRESS) {
 		return "", 0, errors.New("transaction is not calling correct contract")
 	}
 	recp, err := ethClient.TransactionReceipt(context.Background(), common.HexToHash(txhash))
