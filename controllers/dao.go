@@ -51,6 +51,7 @@ func GetAllDAOs(c *gin.Context) {
 	if params.Offset != 0 {
 		opt.SetSkip(int64(params.Offset))
 	}
+	opt.SetSort(bson.M{"displayId": -1})
 	if c.Query("state") == "" {
 		fil.State = nil
 	} else {

@@ -37,6 +37,7 @@ func createRouter() *gin.Engine {
 	api := router.Group("/api")
 	routes.SetDAORoutes(api)
 	routes.SetAuthRoutes(api)
+	routes.SetMetadataRoute(api)
 
 	return router
 }
