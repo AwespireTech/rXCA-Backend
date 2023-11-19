@@ -19,9 +19,9 @@ func GetMetadataByID(c *gin.Context) {
 	}
 	metadata := models.Metadata{
 		DAOData:     dao,
-		Name:        "Token For " + dao.Name,
+		Name:        "[RXCA] " + dao.Name,
 		Image:       "https://rxca.imlab.app/api/metadata-image",
-		Description: "This is a token for DAO \"" + dao.Name + "\".\n",
+		Description: "This is a RXCA token for DAO \"" + dao.Name + "\".\n",
 	}
 	c.JSON(200, metadata)
 }
