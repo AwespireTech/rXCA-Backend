@@ -19,9 +19,9 @@ func GetMetadataByID(c *gin.Context) {
 	}
 	metadata := models.Metadata{
 		DAOData:     dao,
-		Name:        "[RXCA] " + dao.Name,
+		Name:        "miXed organization Certification Authority - Soulbound Token - " + dao.Name,
 		Image:       "https://rxca.imlab.app/api/metadata-image",
-		Description: "This is a RXCA token for DAO \"" + dao.Name + "\".\n",
+		Description: "This is a concept verification token issued by the Taiwan Ministry of Digital Development. The token is used to symbolize the identity of a DAO that has been officially approved by the moda",
 	}
 	c.JSON(200, metadata)
 }

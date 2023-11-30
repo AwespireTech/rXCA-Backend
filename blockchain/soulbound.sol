@@ -27,6 +27,7 @@ contract SoulBoundToken is ERC721, ERC721Enumerable, ERC721URIStorage, AccessCon
     );
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    
     Counters.Counter private _tokenIdCounter;
 
 
@@ -43,7 +44,9 @@ contract SoulBoundToken is ERC721, ERC721Enumerable, ERC721URIStorage, AccessCon
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
     }
-    
+    function setTokenURI(uint256 tokenId,string memory uri) public onlyRole(MINTER_ROLE){
+        _setTokenURI(tokenId,uri);
+    }
 
 
     // The following functions are overrides required by Solidity.
