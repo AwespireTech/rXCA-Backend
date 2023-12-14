@@ -6,6 +6,7 @@ import (
 
 	"github.com/AwespireTech/RXCA-Backend/config"
 	"github.com/AwespireTech/RXCA-Backend/models"
+	"github.com/ethereum/go-ethereum/eth/filters"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -33,9 +34,10 @@ func InsertDAO(dao models.DAO) error {
 func GetDAOByAddress(address string) (models.DAO, error) {
 	db := GetClient().Database(config.DATABASE_NAME).Collection("DAO")
 	dao := models.DAO{}
-	err := db.FindOne(context.TODO(), bson.M{
-		"addr": address,
-	}).Decode(&dao)
+	filter := models.DAOAddressFilter{
+		Address: address,
+	}
+	err := db.FindOne(context.TODO(), filter).Decode(&dao)
 	if err != nil {
 		return dao, err
 	}
@@ -43,9 +45,10 @@ func GetDAOByAddress(address string) (models.DAO, error) {
 }
 func DeleteDAOByAddress(address string) error {
 	db := GetClient().Database(config.DATABASE_NAME).Collection("DAO")
-	_, err := db.DeleteOne(context.Background(), bson.M{
-		"addr": address,
-	})
+	filter := models.DAOAddressFilter{
+		Address: address,
+	}
+	_, err := db.DeleteOne(context.Background(), filter)
 	return err
 }
 func GetAllDAOs(fil models.DAOFilter, opt *options.FindOptions) ([]models.DAO, int, error) {
