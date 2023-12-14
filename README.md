@@ -1,4 +1,4 @@
-# dXCA-backend
+# RXCA-backend
 
 With Docker Installed, run the following commands to start server on localhost:8080 for debugging:
 
