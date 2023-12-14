@@ -8,6 +8,7 @@ import (
 
 var (
 	DATABASE_URL     string
+	DATABASE_NAME    string
 	ETH_RPC_URL      string
 	CONTRACT_ADDRESS string
 )
@@ -18,6 +19,11 @@ func init() {
 		databaseCred = os.Getenv("DATABASE_USERNAME") + ":" + os.Getenv("DATABASE_PASSWORD") + "@"
 	} else {
 		databaseCred = ""
+	}
+	if os.Getenv("DATABASE_NAME") != "" {
+		DATABASE_NAME = os.Getenv("DATABASE_NAME")
+	} else {
+		DATABASE_NAME = "rxca"
 	}
 	DATABASE_URL = "mongodb://" + databaseCred + os.Getenv("DATABASE_HOST")
 	ETH_RPC_URL = os.Getenv("ETH_RPC_URL")

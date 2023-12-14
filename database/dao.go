@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/AwespireTech/dXCA-Backend/config"
 	"github.com/AwespireTech/dXCA-Backend/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,7 +12,7 @@ import (
 )
 
 func InsertDAO(dao models.DAO) error {
-	db := GetClient().Database("dXCA").Collection("DAO")
+	db := GetClient().Database(config.DATABASE_NAME).Collection("DAO")
 	//Check dup address
 	cnt, err := db.CountDocuments(context.Background(), bson.M{
 		"addr": dao.Address,
@@ -30,7 +31,7 @@ func InsertDAO(dao models.DAO) error {
 	return err
 }
 func GetDAOByAddress(address string) (models.DAO, error) {
-	db := GetClient().Database("dXCA").Collection("DAO")
+	db := GetClient().Database(config.DATABASE_NAME).Collection("DAO")
 	dao := models.DAO{}
 	err := db.FindOne(context.TODO(), bson.M{
 		"addr": address,
@@ -41,14 +42,14 @@ func GetDAOByAddress(address string) (models.DAO, error) {
 	return dao, nil
 }
 func DeleteDAOByAddress(address string) error {
-	db := GetClient().Database("dXCA").Collection("DAO")
+	db := GetClient().Database(config.DATABASE_NAME).Collection("DAO")
 	_, err := db.DeleteOne(context.Background(), bson.M{
 		"addr": address,
 	})
 	return err
 }
 func GetAllDAOs(fil models.DAOFilter, opt *options.FindOptions) ([]models.DAO, int, error) {
-	db := GetClient().Database("dXCA").Collection("DAO")
+	db := GetClient().Database(config.DATABASE_NAME).Collection("DAO")
 	var daos []models.DAO
 	cnt, err := db.CountDocuments(context.Background(), fil)
 	if err != nil {
@@ -67,7 +68,7 @@ func GetAllDAOs(fil models.DAOFilter, opt *options.FindOptions) ([]models.DAO, i
 	return daos, int(cnt), nil
 }
 func UpdateDAOByAddress(address string, dao models.DAO) error {
-	db := GetClient().Database("dXCA").Collection("DAO")
+	db := GetClient().Database(config.DATABASE_NAME).Collection("DAO")
 	update := bson.M{
 		"$set": dao,
 	}
@@ -78,7 +79,7 @@ func UpdateDAOByAddress(address string, dao models.DAO) error {
 }
 
 func AutoIncreamentID() (int, error) {
-	db := GetClient().Database("dXCA").Collection("DAOid")
+	db := GetClient().Database(config.DATABASE_NAME).Collection("DAOid")
 	id := models.DAOid{}
 	err := db.FindOne(context.Background(), bson.M{}).Decode(&id)
 	if err != nil {
