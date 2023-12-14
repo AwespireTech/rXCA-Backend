@@ -7,7 +7,8 @@ const (
 )
 
 type DAO struct {
-	Address            string `json:"address" bson:"addr"`
+	ID                 int    `json:"id" bson:"displayId,omitempty"`
+	Address            string `json:"address" bson:"addr,omitempty"`
 	Contract           string `json:"network" bson:"contract,omitempty"`
 	Name               string `json:"name" bson:"name,omitempty"`
 	Description        string `json:"description" bson:"description,omitempty"`
@@ -18,19 +19,34 @@ type DAO struct {
 	ContractsRegUri    string `json:"contractsRegUri" bson:"contractsRegUri,omitempty"`
 	ManagerAddress     string `json:"managerAddress" bson:"managerAddress,omitempty"`
 	GovernanceDocument string `json:"governanceDocument" bson:"governanceDocument,omitempty"`
-	State              int    `json:"state" bson:"state,omitempty"`
+	State              int    `json:"state" bson:"state"`
 	TokenId            int    `json:"tokenId" bson:"tokenId,omitempty"`
 	Creator            string `json:"creator" bson:"creator,omitempty"`
 }
 type DAOFilter struct {
-	Address string `bson:"addr,omitempty"`
-	Name    string `bson:"name,omitempty"`
-	State   int    `bson:"state,omitempty"`
+	Name    interface{} `bson:"name,omitempty"`
+	State   interface{} `bson:"state,omitempty"`
+	Creator string      `bson:"creator,omitempty"`
 }
+
 type DAOsResponse struct {
 	DAOs  []DAO `json:"daos"`
 	Count int   `json:"count"`
 }
 type DAOVerifyRequest struct {
-	Validate bool `json:"validate"`
+	Validate bool   `json:"validate"`
+	TxHash   string `json:"opHash"`
+}
+type DAORevokeRequest struct {
+	TxHash string `json:"opHash" binding:"required"`
+}
+type DAOid struct {
+	ID int `json:"id" bson:"id,omitempty"`
+}
+type DAOExploreParams struct {
+	Search  string `form:"search"`
+	State   int    `form:"state"`
+	Limit   int    `form:"limit"`
+	Offset  int    `form:"offset"`
+	Creator string `form:"creator"`
 }

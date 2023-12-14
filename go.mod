@@ -1,6 +1,6 @@
-module github.com/AwespireTech/dXCA-Backend
+module github.com/AwespireTech/RXCA-Backend
 
-go 1.20
+go 1.21
 
 require (
 	github.com/ethereum/go-ethereum v1.13.2

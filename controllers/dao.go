@@ -1,16 +1,22 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"regexp"
 
-	"github.com/AwespireTech/dXCA-Backend/database"
-	"github.com/AwespireTech/dXCA-Backend/models"
+	"github.com/AwespireTech/RXCA-Backend/blockchain"
+	"github.com/AwespireTech/RXCA-Backend/database"
+	"github.com/AwespireTech/RXCA-Backend/models"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func GetDAOByAddr(c *gin.Context) {
-	address := c.Param("address")
+	address := blockchain.ParseAddress(c.Param("address"))
 	dao, err := database.GetDAOByAddress(address)
 	if err != nil {
 		if err.Error() == mongo.ErrNoDocuments.Error() {
@@ -28,8 +34,47 @@ func GetDAOByAddr(c *gin.Context) {
 }
 
 func GetAllDAOs(c *gin.Context) {
+	var params models.DAOExploreParams
+	err := c.ShouldBindQuery(&params)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
 	fil := models.DAOFilter{}
-	daos, cnt, err := database.GetAllDAOs(fil)
+	opt := options.Find()
+	if params.Limit != 0 {
+		opt.SetLimit(int64(params.Limit))
+	}
+	if params.Offset != 0 {
+		opt.SetSkip(int64(params.Offset))
+	}
+	opt.SetSort(bson.M{"displayId": -1})
+	if c.Query("state") == "" {
+		fil.State = nil
+	} else {
+		fil.State = params.State
+	}
+	if params.Search != "" {
+		fil.Name = bson.D{
+			{
+				Key: "$regex",
+				Value: primitive.Regex{
+					Pattern: regexp.QuoteMeta(params.Search),
+					Options: "i",
+				},
+			},
+		}
+	} else {
+		fil.Name = nil
+	}
+	fil.Creator = params.Creator
+
+	//Print filter
+	fmt.Println(fil)
+	daos, cnt, err := database.GetAllDAOs(fil, opt)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": err.Error(),
@@ -43,7 +88,7 @@ func GetAllDAOs(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 func CancelDAO(c *gin.Context) {
-	address := c.Param("address")
+	address := blockchain.ParseAddress(c.Param("address"))
 	dao, err := database.GetDAOByAddress(address)
 	if err != nil {
 		if err.Error() == mongo.ErrNoDocuments.Error() {
@@ -89,6 +134,8 @@ func CreateDAO(c *gin.Context) {
 		})
 		return
 	}
+	dao.Address = blockchain.ParseAddress(dao.Address)
+
 	err = database.InsertDAO(dao)
 	if err != nil {
 		if mongo.IsDuplicateKeyError(err) {
@@ -105,9 +152,30 @@ func CreateDAO(c *gin.Context) {
 	c.JSON(http.StatusCreated, dao)
 }
 func ValidateDAOByAddr(c *gin.Context) {
-	address := c.Param("address")
+	//Check if DAO is pending
+	originDao, err := database.GetDAOByAddress(blockchain.ParseAddress(c.Param("address")))
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "DAO not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	if originDao.State != models.DAO_STATE_PENDING {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "DAO is not pending",
+		})
+		return
+	}
+
+	address := blockchain.ParseAddress(c.Param("address"))
 	val := models.DAOVerifyRequest{}
-	err := c.ShouldBindJSON(&val)
+	err = c.ShouldBindJSON(&val)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -115,8 +183,24 @@ func ValidateDAOByAddr(c *gin.Context) {
 		return
 	}
 	if val.Validate {
+		addr, tid, err := blockchain.DecodeMintTransaction(val.TxHash)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		if addr != address {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Transaction is not minting to the correct address",
+			})
+			return
+		}
+
 		dao := models.DAO{
-			State: models.DAO_STATE_APPROVED,
+			Address: address,
+			State:   models.DAO_STATE_APPROVED,
+			TokenId: tid,
 		}
 		err = database.UpdateDAOByAddress(address, dao)
 		if err != nil {
@@ -137,7 +221,9 @@ func ValidateDAOByAddr(c *gin.Context) {
 		return
 	} else {
 		dao := models.DAO{
-			State: models.DAO_STATE_DENIED,
+			Address: address,
+			State:   models.DAO_STATE_DENIED,
+			TokenId: -1,
 		}
 		err = database.UpdateDAOByAddress(address, dao)
 		if err != nil {
@@ -157,4 +243,64 @@ func ValidateDAOByAddr(c *gin.Context) {
 		})
 		return
 	}
+}
+func RevokeDAOByAddr(c *gin.Context) {
+	address := blockchain.ParseAddress(c.Param("address"))
+
+	oriDAO, err := database.GetDAOByAddress(address)
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "DAO not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	val := models.DAORevokeRequest{}
+	err = c.ShouldBindJSON(&val)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	addr, tid, err := blockchain.DecodeBurnTransaction(val.TxHash)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	if addr != address || tid != oriDAO.TokenId {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Transaction is not buring of correct address",
+		})
+		return
+	}
+	update := models.DAO{
+		Address: address,
+		State:   models.DAO_STATE_DENIED,
+		TokenId: -1,
+	}
+	err = database.UpdateDAOByAddress(address, update)
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "DAO not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "DAO successfully revoked",
+	})
+
 }
