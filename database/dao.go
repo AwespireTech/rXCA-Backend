@@ -14,9 +14,10 @@ import (
 func InsertDAO(dao models.DAO) error {
 	db := GetClient().Database(config.DATABASE_NAME).Collection("DAO")
 	//Check dup address
-	cnt, err := db.CountDocuments(context.Background(), bson.M{
-		"addr": dao.Address,
-	})
+	filter := models.DAOAddressFilter{
+		Address: dao.Address,
+	}
+	cnt, err := db.CountDocuments(context.Background(), filter)
 	if err != nil {
 		return err
 	}
