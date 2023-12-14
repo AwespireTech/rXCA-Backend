@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/AwespireTech/dXCA-Backend/config"
-	"github.com/AwespireTech/dXCA-Backend/models"
+	"github.com/AwespireTech/RXCA-Backend/config"
+	"github.com/AwespireTech/RXCA-Backend/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

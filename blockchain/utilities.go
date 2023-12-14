@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/AwespireTech/dXCA-Backend/config"
+	"github.com/AwespireTech/RXCA-Backend/config"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )

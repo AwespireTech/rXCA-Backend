@@ -12,9 +12,9 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/AwespireTech/dXCA-Backend/blockchain"
-	"github.com/AwespireTech/dXCA-Backend/database"
-	"github.com/AwespireTech/dXCA-Backend/models"
+	"github.com/AwespireTech/RXCA-Backend/blockchain"
+	"github.com/AwespireTech/RXCA-Backend/database"
+	"github.com/AwespireTech/RXCA-Backend/models"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/gin-gonic/gin"

@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/AwespireTech/dXCA-Backend/controllers"
+	"github.com/AwespireTech/RXCA-Backend/controllers"
 	"github.com/gin-gonic/gin"
 )
 

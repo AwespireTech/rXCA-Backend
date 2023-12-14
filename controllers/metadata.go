@@ -3,8 +3,8 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/AwespireTech/dXCA-Backend/database"
-	"github.com/AwespireTech/dXCA-Backend/models"
+	"github.com/AwespireTech/RXCA-Backend/database"
+	"github.com/AwespireTech/RXCA-Backend/models"
 	"github.com/gin-gonic/gin"
 )
 

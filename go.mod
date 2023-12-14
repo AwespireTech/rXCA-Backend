@@ -1,4 +1,4 @@
-module github.com/AwespireTech/dXCA-Backend
+module github.com/AwespireTech/RXCA-Backend
 
 go 1.21
 

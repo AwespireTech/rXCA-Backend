@@ -3,7 +3,7 @@ package blockchain
 import (
 	"testing"
 
-	"github.com/AwespireTech/dXCA-Backend/config"
+	"github.com/AwespireTech/RXCA-Backend/config"
 )
 
 func TestMain(m *testing.M) {

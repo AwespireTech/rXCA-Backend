@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/AwespireTech/dXCA-Backend/blockchain"
-	"github.com/AwespireTech/dXCA-Backend/database"
-	"github.com/AwespireTech/dXCA-Backend/models"
+	"github.com/AwespireTech/RXCA-Backend/blockchain"
+	"github.com/AwespireTech/RXCA-Backend/database"
+	"github.com/AwespireTech/RXCA-Backend/models"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
