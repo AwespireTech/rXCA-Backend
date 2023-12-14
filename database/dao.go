@@ -74,9 +74,10 @@ func UpdateDAOByAddress(address string, dao models.DAO) error {
 	update := bson.M{
 		"$set": dao,
 	}
-	_, err := db.UpdateOne(context.Background(), bson.M{
-		"addr": address,
-	}, update)
+	filter := models.DAOAddressFilter{
+		Address: address,
+	}
+	_, err := db.UpdateOne(context.Background(), filter, update)
 	return err
 }
 
