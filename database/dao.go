@@ -6,7 +6,6 @@ import (
 
 	"github.com/AwespireTech/RXCA-Backend/config"
 	"github.com/AwespireTech/RXCA-Backend/models"
-	"github.com/ethereum/go-ethereum/eth/filters"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
