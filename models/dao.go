@@ -28,6 +28,9 @@ type DAOFilter struct {
 	State   interface{} `bson:"state,omitempty"`
 	Creator string      `bson:"creator,omitempty"`
 }
+type DAOAddressFilter struct {
+	Address string `bson:"addr,omitempty"`
+}
 
 type DAOsResponse struct {
 	DAOs  []DAO `json:"daos"`
